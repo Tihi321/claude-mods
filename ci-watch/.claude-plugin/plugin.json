@@ -1,0 +1,9 @@
+{
+  "name": "ci-watch",
+  "version": "0.1.0",
+  "description": "After a git push, watches the GitHub Actions runs for that commit and reports pass or fail without you opening GitHub.",
+  "author": {
+    "name": "Tihomir Selak"
+  },
+  "types": "./types/index.d.ts"
+}

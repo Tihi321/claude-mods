@@ -1,0 +1,9 @@
+{
+  "name": "plan-to-ticket",
+  "version": "0.1.0",
+  "description": "When you approve a plan, saves it as .claude/tickets/<ticket>/plan.md in the project and points Claude at that copy.",
+  "author": {
+    "name": "Tihomir Selak"
+  },
+  "types": "./types/index.d.ts"
+}

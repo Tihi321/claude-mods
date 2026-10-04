@@ -1,0 +1,9 @@
+{
+  "name": "ship-bar",
+  "version": "0.1.0",
+  "description": "A band above the prompt with the repo's branch, changed files, unpushed commits and PR, plus Commit & push, Open PR and Diff buttons.",
+  "author": {
+    "name": "Tihomir Selak"
+  },
+  "types": "./types/index.d.ts"
+}

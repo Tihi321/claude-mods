@@ -1,0 +1,8 @@
+{
+  "name": "eol-guard",
+  "version": "0.1.0",
+  "description": "Keeps files' git line endings (CRLF/LF) after Claude's edits and shell commands, and stops prettier checks failing on a CRLF checkout.",
+  "author": {
+    "name": "Tihomir Selak"
+  }
+}

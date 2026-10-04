@@ -1,0 +1,8 @@
+{
+  "name": "session-ref",
+  "version": "0.1.0",
+  "description": "When a prompt names an earlier session's ID, attaches a digest of that session (prompts, files, commits, last reply) for Claude.",
+  "author": {
+    "name": "Tihomir Selak"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "tihi-mods",
+  "owner": { "name": "Tihomir Selak" },
+  "metadata": {
+    "description": "Claude Code mods (function-hook plugins): CI watching, git state band, line-ending guard, plan filing and session digests."
+  },
+  "plugins": [
+    {
+      "name": "ci-watch",
+      "source": "./ci-watch",
+      "description": "After a git push, watches the GitHub Actions runs for that commit and reports pass or fail without you opening GitHub."
+    },
+    {
+      "name": "eol-guard",
+      "source": "./eol-guard",
+      "description": "Keeps files' git line endings (CRLF/LF) after Claude's edits and shell commands, and stops prettier checks failing on a CRLF checkout."
+    },
+    {
+      "name": "ship-bar",
+      "source": "./ship-bar",
+      "description": "A band above the prompt with the repo's branch, changed files, unpushed commits and PR, plus Commit & push, Open PR and Diff buttons."
+    },
+    {
+      "name": "plan-to-ticket",
+      "source": "./plan-to-ticket",
+      "description": "When you approve a plan, saves it as .claude/tickets/<ticket>/plan.md in the project and points Claude at that copy."
+    },
+    {
+      "name": "session-ref",
+      "source": "./session-ref",
+      "description": "When a prompt names an earlier session's ID, attaches a digest of that session (prompts, files, commits, last reply) for Claude."
+    }
+  ]
+}
