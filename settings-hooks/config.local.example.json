@@ -1,9 +1,4 @@
 {
-  "jiraPrefetch": {
-    "site": "your-company.atlassian.net",
-    "cloudId": "",
-    "projects": ["ABC", "XYZ"]
-  },
   "statusline": {
     "ports": [
       { "port": 5173, "label": "vite" }

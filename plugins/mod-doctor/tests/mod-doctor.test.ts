@@ -16,8 +16,8 @@ const LOG = [
   '2026-10-03T10:00:00.000Z [edit.js post] eslint 1 file(s) in C:\\projects\\my-app: exit 1 7200ms',
   '2026-10-03T10:01:00.000Z [edit.js post] eslint 1 file(s) in C:\\projects\\my-app: exit 0 900ms',
   '2026-10-03T10:02:00.000Z [edit.js post] eslint 1 file(s) in C:\\projects\\other-app: exit 0 300ms',
-  '2026-10-03T11:00:00.000Z [prompt.js ] jira: Error: fetch failed',
-  '2026-10-01T11:00:00.000Z [prompt.js ] ERROR old one',
+  '2026-10-03T11:00:00.000Z [bash.js ] git-guard: Error: spawn failed',
+  '2026-10-01T11:00:00.000Z [bash.js ] ERROR old one',
 ].join('\n')
 
 test('helpers', () => {
@@ -33,7 +33,7 @@ test('report flags what needs attention', async ($, on) => {
   mock.clock(on, { now: NOW })
   on('command.register', () => ({ value: undefined }))
   on('session.start', () => ({ cwd: '/w' }))
-  on('env.get', ($, e) => ({ value: { USERPROFILE: HOME, TEMP: 'C:\\Users\\me\\AppData\\Local\\Temp', ATLASSIAN_EMAIL: 'a@b' }[e.name] }))
+  on('env.get', ($, e) => ({ value: { USERPROFILE: HOME, TEMP: 'C:\\Users\\me\\AppData\\Local\\Temp' }[e.name] }))
   on('session.version', () => ({ value: '2.1.290' }))
   on('process.run', () => ({ value: { exitCode: 0, stdout: 'v22.3.0\n', stderr: '' } }))
   on('command.list', () => ({ value: [{ name: 'cache' }, { name: 'mod-doctor' }, { name: 'compact' }] }))
@@ -62,7 +62,6 @@ test('report flags what needs attention', async ($, on) => {
   expect(t).toContain('"baseline": false')
   expect(t).toContain('lint-changed in other-app: 1 runs')
   expect(t).toContain('Turned off in config.json: eolGuard')
-  expect(t).toContain('no Jira credentials')
   expect(t).toContain('Claude Code 2.1.290')
   expect(t).toContain('Node v22.3.0')
 })

@@ -1,9 +1,8 @@
 // mod-doctor: /mod-doctor checks that every mod is installed and healthy, in one report.
 //
 // Covers both kinds:
-//  - the settings-hook mods in ~/.claude/mods (lint-changed, eol-guard, jira-prefetch, git-guard, status line):
-//    hook scripts present, config.json valid, Node version, errors and ESLint timings in the mods log,
-//    Jira credentials set
+//  - the settings-hook mods in ~/.claude/mods (lint-changed, eol-guard, git-guard, status line):
+//    hook scripts present, config.json valid, Node version, errors and ESLint timings in the mods log
 //  - the plugin mods from the tihi-mods marketplace (all nine in plugins/): enabled in settings,
 //    their commands registered (for the ones that have one), Claude Code new enough, trash size
 //
@@ -123,9 +122,7 @@ async function diagnose($) {
   // Node
   try {
     const r = await $.process.run(['node', '--version'], { timeoutMs: 5000 })
-    const major = parseInt(String(r.stdout).replace(/^v/, ''), 10)
     if (r.exitCode !== 0) warn.push('`node --version` failed. The settings-hook mods and delete-guard need Node on PATH.')
-    else if (major < 18) warn.push('Node ' + r.stdout.trim() + ': jira-prefetch needs Node 18+.')
     else ok.push('Node ' + r.stdout.trim())
   } catch {
     warn.push('Node is not on PATH. The settings-hook mods and delete-guard need it.')
@@ -137,7 +134,7 @@ async function diagnose($) {
   const s = settings.value || {}
 
   const scripts = modHookScripts(s)
-  if (!scripts.length) info.push('Settings-hook mods (lint-changed, eol-guard, jira-prefetch, git-guard, status line) are not installed. Run `node install.js` in your claude-mods clone.')
+  if (!scripts.length) info.push('Settings-hook mods (lint-changed, eol-guard, git-guard, status line) are not installed. Run `node install.js` in your claude-mods clone.')
   else {
     const missing = []
     for (const x of scripts) if (!(await $.fs.exists(x.script))) missing.push(x.event + ': ' + x.script)
@@ -164,14 +161,6 @@ async function diagnose($) {
     else if (on === undefined && !hasCmd) warn.push(p.id + ' is not installed. Run `node install.js` in your claude-mods clone.')
     else if (p.command && cmds.length && !hasCmd) warn.push(p.id + ' is enabled but /' + p.command + ' is not registered: the mod did not load. Check /plugin > Errors, then `/reload-plugins`.')
     else ok.push(p.id.split('@')[0] + (hasCmd ? ' loaded (/' + p.command + ')' : ' enabled'))
-  }
-
-  // Jira credentials for jira-prefetch (presence only)
-  const email = (await $.env.get('ATLASSIAN_EMAIL')) || (await $.env.get('JIRA_EMAIL'))
-  const token = (await $.env.get('ATLASSIAN_API_TOKEN')) || (await $.env.get('JIRA_API_TOKEN'))
-  if (scripts.length) {
-    if (email && token) ok.push('Jira credentials set for jira-prefetch')
-    else info.push('jira-prefetch has no Jira credentials (ATLASSIAN_EMAIL / ATLASSIAN_API_TOKEN), so it only uses saved tickets.')
   }
 
   // The mods log

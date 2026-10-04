@@ -48,7 +48,7 @@ claude plugin install ci-watch@tihi-mods   # and so on for each plugin below
 | `eol-guard` | After Write, Edit, Bash or PowerShell, restores the CRLF/LF line endings git checks a file out with, and tells Claude to re-read the file. In a `core.autocrlf=true` checkout, adds `--end-of-line auto` to direct `prettier --check` calls. | none |
 | `plan-to-ticket` | When a plan is approved, saves it as `.claude/tickets/<ticket>/plan.md` in the project. The ticket ID comes from your prompt, and an existing folder for that ID is reused. | none |
 | `session-ref` | When a prompt contains an earlier session's ID, attaches a digest of it: prompts, files changed, commits and the last reply. Python cuts transcripts over 4 MiB down first. | none (adds input tokens) |
-| `mod-doctor` | `/mod-doctor` writes one health report covering every plugin and settings hook, the config, Node, Jira credentials, mods-log errors and ESLint timings. | none |
+| `mod-doctor` | `/mod-doctor` writes one health report covering every plugin and settings hook, the config, Node, mods-log errors and ESLint timings. | none |
 
 GitHub access (ci-watch, and ship-bar's PR state) goes through `gh api` when `gh` is installed, otherwise through the REST API using `GITHUB_TOKEN`/`GH_TOKEN`, otherwise anonymously. Anonymous access covers public repositories, at 60 requests an hour.
 
@@ -57,19 +57,17 @@ GitHub access (ci-watch, and ship-bar's PR state) goes through `gh api` when `gh
 | Mod | Event | What you see | Model usage |
 |---|---|---|---|
 | lint-changed | PreToolUse + PostToolUse `Edit\|Write`, Stop, SubagentStop | `lint-changed: 2 new error(s) in StatusPanel.jsx` | none |
-| jira-prefetch | UserPromptSubmit | `jira-prefetch: ABC-123 · Fix the login timeout · In Progress` | none (adds ~1–2K context tokens) |
 | git-guard | PostToolUse `Bash\|PowerShell` | `git-guard: app/ABC-123-x was tracking origin/master; upstream removed…` | none |
 | status line | statusLine | `my-app  ABC-123-status-panel ↑1  3 changed  vite:5173 ●  Opus 5.5` | none |
 | eol-guard (hook) | PreToolUse + PostToolUse | off by default; the `eol-guard` plugin replaces it | none |
 
 - **lint-changed.** The first time Claude touches a JS/TS file in a session, ESLint records the errors already in it. After each edit, only *new* errors are reported to Claude. When Claude or a subagent finishes, every file it edited is re-linted, and the stop is blocked once if new errors remain. It uses the repo's own `node_modules/eslint` and config.
-- **jira-prefetch.** Finds Jira keys in your prompt and injects the ticket before Claude starts. Sources, in order: the repo's `.claude/tickets/<KEY>*/ticket.md`, a 30-minute cache, then the Jira REST API. It uses the API only when a `site` is configured, with credentials from `ATLASSIAN_EMAIL` and `ATLASSIAN_API_TOKEN` (or `JIRA_EMAIL` / `JIRA_API_TOKEN`).
 - **git-guard.** After a command that creates a branch tracking a differently named upstream (`git switch -c ABC-123 origin/master`), it unsets that upstream and turns on `push.autoSetupRemote`, so a plain `git push` creates `origin/<branch>`.
 - **Status line.** Repo, branch, ahead/behind, changed and new file counts, a warning when the upstream doesn't match, "not pushed", the configured dev ports (up or down), and the model.
 
 ### Configure
 
-The shipped `settings-hooks/config.json` is generic: no Jira site, no dev ports. Put machine-specific values in `settings-hooks/config.local.json`, which is git-ignored; copy `config.local.example.json` to start one. `install.js` merges it in. After installing, edit `~/.claude/mods/config.json` directly; reinstalling keeps your values. Every mod has an `enabled` flag. Logs and per-session state live in `%TEMP%\claude-mods\`.
+The shipped `settings-hooks/config.json` is generic: no dev ports. Put machine-specific values in `settings-hooks/config.local.json`, which is git-ignored; copy `config.local.example.json` to start one. `install.js` merges it in. After installing, edit `~/.claude/mods/config.json` directly; reinstalling keeps your values. Every mod has an `enabled` flag. Logs and per-session state live in `%TEMP%\claude-mods\`.
 
 ## /replay-ticket
 

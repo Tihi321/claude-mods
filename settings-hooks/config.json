@@ -13,17 +13,6 @@
     "maxBytes": 5000000,
     "maxFilesAfterBash": 300
   },
-  "jiraPrefetch": {
-    "enabled": true,
-    "site": "",
-    "cloudId": "",
-    "projects": [],
-    "maxIssues": 3,
-    "cacheMinutes": 30,
-    "maxChars": 9000,
-    "timeoutMs": 7000,
-    "skipWhenPromptHas": ["/jira-plan"]
-  },
   "gitGuard": {
     "enabled": true,
     "setAutoSetupRemote": true

@@ -43,7 +43,6 @@ const HOOKS = {
   ],
   Stop: [{ hooks: [{ type: 'command', command: cmd('hooks/stop.js', 'main'), timeout: 180 }] }],
   SubagentStop: [{ hooks: [{ type: 'command', command: cmd('hooks/stop.js', 'subagent'), timeout: 180 }] }],
-  UserPromptSubmit: [{ hooks: [{ type: 'command', command: cmd('hooks/prompt.js'), timeout: 15 }] }],
 };
 const STATUS = { type: 'command', command: cmd('statusline.js'), padding: 0, refreshInterval: 10 };
 
@@ -99,9 +98,6 @@ function stripOurHooks(s) {
 }
 
 function install() {
-  const major = +process.versions.node.split('.')[0];
-  if (major < 18) say(`! Node ${process.versions.node}: jira-prefetch needs Node 18+ (fetch). Everything else works.`);
-
   say(`Installing into ${CLAUDE}`);
   if (!DRY) fs.mkdirSync(MODS, { recursive: true });
   const userCfgPath = path.join(MODS, 'config.json');
@@ -109,9 +105,12 @@ function install() {
   const userCfg = fs.existsSync(userCfgPath) ? readJson(userCfgPath) : null;
   const localCfg = readJson(path.join(HOOK_SRC, 'config.local.json'));
   copyDir(HOOK_SRC, MODS, (s) => /[\\/]cache$|[\\/]config(\.local(\.example)?)?\.json$/.test(s));
+  // Retired jira-prefetch: copyDir only adds files, so remove what an older install left behind.
+  for (const f of ['hooks/prompt.js', 'lib/jira.js', 'cache/jira']) if (!DRY) fs.rmSync(path.join(MODS, f), { recursive: true, force: true });
   let cfg = readJson(path.join(HOOK_SRC, 'config.json')) || {};
   if (localCfg) cfg = deepMerge(cfg, localCfg);
   if (userCfg) cfg = deepMerge(cfg, userCfg);
+  delete cfg.jiraPrefetch;
   // The eol-guard plugin does this job; never run both on the same edit.
   if (!flag('--hooks-only') && pluginNames().includes('eol-guard') && cfg.eolGuard && cfg.eolGuard.enabled) {
     cfg.eolGuard.enabled = false;
@@ -137,9 +136,6 @@ function install() {
     say('  statusLine: set');
   }
   writeSettings(s);
-
-  const creds = (process.env.ATLASSIAN_EMAIL || process.env.JIRA_EMAIL) && (process.env.ATLASSIAN_API_TOKEN || process.env.JIRA_API_TOKEN);
-  say(creds ? '  Jira credentials found in the environment.' : '  jira-prefetch: ATLASSIAN_EMAIL / ATLASSIAN_API_TOKEN are not set in this shell; set them (setx) if /jira-plan attachments also fail.');
 }
 
 // ---------- plugin mods (real Claude Code mods, installed through a local marketplace) ----------

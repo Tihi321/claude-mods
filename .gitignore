@@ -2,7 +2,7 @@
 **/.claude-plugin/types/
 plugins/*/tsconfig.json
 
-# Machine-specific values for the settings-hook mods (Jira site, dev ports). install.js merges this
+# Machine-specific values for the settings-hook mods (dev ports). install.js merges this
 # over settings-hooks/config.json; copy config.local.example.json to start one.
 settings-hooks/config.local.json
 settings-hooks/cache/

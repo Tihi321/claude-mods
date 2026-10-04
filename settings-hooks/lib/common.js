@@ -23,17 +23,6 @@ const DEFAULTS = {
   },
   // Off by default: the eol-guard plugin in this marketplace does the same job (and more).
   eolGuard: { enabled: false, maxBytes: 5000000, maxFilesAfterBash: 300 },
-  jiraPrefetch: {
-    enabled: true,
-    site: '',      // e.g. 'your-company.atlassian.net'; empty = saved ticket.md files only, no API calls
-    cloudId: '',   // needed for scoped API tokens (api.atlassian.com)
-    projects: [],  // e.g. ['ABC', 'XYZ']; empty list = any KEY-123
-    maxIssues: 3,
-    cacheMinutes: 30,
-    maxChars: 9000,
-    timeoutMs: 7000,
-    skipWhenPromptHas: ['/jira-plan'],
-  },
   gitGuard: { enabled: true, setAutoSetupRemote: true },
   statusline: {
     ports: [],   // e.g. [{ port: 5173, label: 'vite' }]
