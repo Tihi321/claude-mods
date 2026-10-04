@@ -1,0 +1,7 @@
+{
+  "name": "delete-guard",
+  "version": "1.0.0",
+  "description": "Holds recursive deletes (rm -rf, Remove-Item -Recurse, rmdir /s, git clean -f), shows what would go, and offers move-to-trash with /undo-delete, delete, or refuse. Leaves a receipt.",
+  "author": { "name": "Tihomir Selak" },
+  "keywords": ["mod", "safety", "undo"]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "mod-doctor",
+  "version": "1.0.0",
+  "description": "/mod-doctor checks every installed mod in one report: hook scripts, plugin mods loaded, Node, Claude Code version, errors and ESLint timings in the mods log.",
+  "author": { "name": "Tihomir Selak" },
+  "keywords": ["mod", "diagnostics"]
+}

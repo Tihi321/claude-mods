@@ -2,33 +2,62 @@
   "name": "tihi-mods",
   "owner": { "name": "Tihomir Selak" },
   "metadata": {
-    "description": "Claude Code mods (function-hook plugins): CI watching, git state band, line-ending guard, plan filing and session digests."
+    "description": "Tihomir's Claude Code mods: CI watching, git state band, cache clock, next-step suggestions, delete guard with undo, line-ending guard, plan filing, session digests and a mod doctor."
   },
   "plugins": [
     {
       "name": "ci-watch",
-      "source": "./ci-watch",
+      "source": "./plugins/ci-watch",
+      "category": "workflow",
       "description": "After a git push, watches the GitHub Actions runs for that commit and reports pass or fail without you opening GitHub."
     },
     {
-      "name": "eol-guard",
-      "source": "./eol-guard",
-      "description": "Keeps files' git line endings (CRLF/LF) after Claude's edits and shell commands, and stops prettier checks failing on a CRLF checkout."
-    },
-    {
       "name": "ship-bar",
-      "source": "./ship-bar",
+      "source": "./plugins/ship-bar",
+      "category": "workflow",
       "description": "A band above the prompt with the repo's branch, changed files, unpushed commits and PR, plus Commit & push, Open PR and Diff buttons."
     },
     {
+      "name": "cache-clock",
+      "source": "./plugins/cache-clock",
+      "category": "usage",
+      "description": "Shows above the prompt how long the prompt cache stays warm, the cache hit rate, context use and plan limits, with a compact button."
+    },
+    {
+      "name": "next-steps",
+      "source": "./plugins/next-steps",
+      "category": "workflow",
+      "description": "After each turn, suggests three next prompts above the prompt box; type 1, 2 or 3 to send one. One small Haiku call per turn."
+    },
+    {
+      "name": "delete-guard",
+      "source": "./plugins/delete-guard",
+      "category": "safety",
+      "description": "Holds recursive deletes, shows what would go, and offers move-to-trash with /undo-delete, delete, or refuse."
+    },
+    {
+      "name": "eol-guard",
+      "source": "./plugins/eol-guard",
+      "category": "safety",
+      "description": "Keeps files' git line endings (CRLF/LF) after Claude's edits and shell commands, and stops prettier checks failing on a CRLF checkout."
+    },
+    {
       "name": "plan-to-ticket",
-      "source": "./plan-to-ticket",
+      "source": "./plugins/plan-to-ticket",
+      "category": "workflow",
       "description": "When you approve a plan, saves it as .claude/tickets/<ticket>/plan.md in the project and points Claude at that copy."
     },
     {
       "name": "session-ref",
-      "source": "./session-ref",
+      "source": "./plugins/session-ref",
+      "category": "workflow",
       "description": "When a prompt names an earlier session's ID, attaches a digest of that session (prompts, files, commits, last reply) for Claude."
+    },
+    {
+      "name": "mod-doctor",
+      "source": "./plugins/mod-doctor",
+      "category": "diagnostics",
+      "description": "/mod-doctor checks every mod in one report: plugin mods loaded, settings hooks present, config valid, mods log errors."
     }
   ]
 }

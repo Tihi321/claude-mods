@@ -1,0 +1,7 @@
+{
+  "name": "next-steps",
+  "version": "1.0.0",
+  "description": "After each turn, suggests three next prompts above the prompt box. Type 1, 2 or 3 (or click) to send one. Uses a small Haiku call per turn.",
+  "author": { "name": "Tihomir Selak" },
+  "keywords": ["mod", "workflow", "prompts"]
+}

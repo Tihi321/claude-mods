@@ -4,8 +4,8 @@ import { findTicketId, planTitle, slugify, ticketFolder, ticketIds } from '../ho
 
 test('finds ticket ids and skips look-alikes', async () => {
   expect(ticketIds('task is TSP-03: Some minor fixes, UTF-8 and SHA-256 and ES-2023')).toEqual(['TSP-03'])
-  expect(findTicketId(['make it LAU-188', 'TST-05 plan'], ['TST-05_favorites-reorder-remove'])).toBe('TST-05')
-  expect(findTicketId(['make it LAU-188', 'TST-05 plan'], [])).toBe('LAU-188')
+  expect(findTicketId(['make it ABC-188', 'TST-05 plan'], ['TST-05_favorites-reorder-remove'])).toBe('TST-05')
+  expect(findTicketId(['make it ABC-188', 'TST-05 plan'], [])).toBe('ABC-188')
   expect(findTicketId(['no id here'], [])).toBe(undefined)
 })
 
