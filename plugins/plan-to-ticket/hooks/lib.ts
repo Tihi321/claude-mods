@@ -11,13 +11,24 @@ export function ticketIds(text: string): string[] {
   return [...text.matchAll(TICKET)].filter(match => !NOT_TICKETS.has(match[1] ?? '')).map(match => match[0])
 }
 
-// The ticket a plan belongs to: an id the sources name that already has a
-// folder, else the first id the sources name, in their order.
+// The ticket a plan belongs to: the first source, in order, that names an id
+// decides it. Within that source an id that already has a folder wins, else
+// its first id. An older source never outranks a newer one just because its
+// ticket was filed: that sent new plans into an earlier ticket's folder.
 export function findTicketId(sources: readonly string[], folders: readonly string[]): string | undefined {
-  const ids = sources.flatMap(ticketIds)
-  const filed = ids.find(id => folders.some(folder => isFolderOf(folder, id)))
+  for (const source of sources) {
+    const ids = ticketIds(source)
+    if (ids.length === 0) continue
 
-  return filed ?? ids[0]
+    return ids.find(id => folders.some(folder => isFolderOf(folder, id))) ?? ids[0]
+  }
+
+  return undefined
+}
+
+// The plan's own heading, with its ticket id still in it.
+export function planHeading(plan: string): string {
+  return plan.match(/^#\s+(.+)$/m)?.[1] ?? ''
 }
 
 export function isFolderOf(folder: string, id: string): boolean {
@@ -27,9 +38,7 @@ export function isFolderOf(folder: string, id: string): boolean {
 }
 
 export function planTitle(plan: string): string {
-  const heading = plan.match(/^#\s+(.+)$/m)?.[1] ?? ''
-
-  return heading
+  return planHeading(plan)
     .replace(/^(implementation\s+)?plan\s*[:\-–—]\s*/i, '')
     .replace(TICKET, '')
     .replace(/^[\s:\-–—]+|[\s:\-–—]+$/g, '')
