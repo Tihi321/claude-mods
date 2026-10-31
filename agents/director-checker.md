@@ -33,8 +33,13 @@ that your brief gives, and where the results are (paths, branches, ticket folder
 3. Give PASS or FAIL per criterion with evidence: a path with line, a command and its relevant
    output. A criterion you cannot check (needs a person to play, read or run it; needs a service
    that is not running) is `UNCHECKED`, with the reason; never mark it PASS.
-4. Then list anything the request asked for that no piece covers, and anything the results
-   changed that the request did not ask for.
+4. When the brief says **integration** (the director's verify step, usually at deep tier): also
+   run the full test suite the brief names, and check the seams between pieces, where one
+   piece's output is another's input (calls, shared types, config, file formats): both sides
+   must match. Each acceptance criterion in the plan is a row.
+5. Then list anything the request asked for that no piece covers, anything the results changed
+   that the request or plan did not ask for, and every `Extra ideas:` line from the pieces'
+   reports, unbuilt, for the user to decide.
 
 ## Self-check
 
@@ -51,6 +56,8 @@ that your brief gives, and where the results are (paths, branches, ticket folder
 VERDICT: PASS | FAIL | PASS with unchecked items
 | # | criterion | verdict | evidence |
 |---|---|---|---|
+Seams: <each seam checked and its verdict, or "not an integration check">
 Not covered by any piece: <list or "none">
 Changed but not asked for: <list or "none">
+Extra ideas from the pieces: <list or "none">
 ```

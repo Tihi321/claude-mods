@@ -12,14 +12,21 @@ title: <short>
 status: open | in-progress | waiting-on-user | done | dropped
 created: 2026-10-27
 updated: 2026-10-27
-links: [.claude/tickets/X/, runs/<slug>.md]
+path: small | full
+links: [.claude/tickets/X/research.md, .claude/tickets/X/plan.md, runs/<slug>.md]
 ---
 ## Request
 <word for word>
 
+## Requirements
+<only when the director had to question the user: requirements and acceptance criteria>
+
 ## Pieces
-| # | piece | role / department | tier | agent or session id | status |
-|---|---|---|---|---|---|
+| # | piece | role / department | tier | effort | agent or session id | status |
+|---|---|---|---|---|---|---|
+
+## Extra ideas
+<ideas workers listed instead of building; each with the user's decision: build / later / no>
 
 ## Log
 - 2026-10-27 14:02 opened
@@ -45,6 +52,9 @@ A piece's status in the Pieces table uses: `todo`, `running`, `done`, `failed`, 
   over the original.
 - `links:` points to the repo's own state (ticket folders, run logs, factory jobs, branches)
   instead of copying it. Paths use forward slashes (`C:/...` when absolute).
+- `path:` is the triage result: `small` (one piece, no plan) or `full` (the pipeline).
+- Requirements: empty when the request was clear. Later changes go in the Log, not over it.
+- Extra ideas: copied from workers' reports, never built until the user's decision says `build`.
 - Pieces: one row per piece; the `agent or session id` column holds the subagent id or session id
   to `SendMessage`, or `-` before a piece starts.
 - Log: one line per event, `- YYYY-MM-DD HH:MM <what>`, oldest first, never rewritten. Steering

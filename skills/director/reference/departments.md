@@ -15,6 +15,8 @@ subagent or session and link the state location.
   Global instructions require plan implementation to go through this skill.
 - **Launch:** `/implement .claude/tickets/<ticket>/plan.md` (absolute path when the session is in
   another folder). Session by default: it cuts a ticket branch and runs `implementer` children.
+  The brief carries the director's scope rule and asks for tests alongside the code (for bugs,
+  the reproduction test failing first).
 - **Returns:** code on the ticket branch (uncommitted unless the user asked), the plan's checklist
   updated with verification evidence and deviations, and `changelog.md` in the ticket folder.
 - **State:** the ticket folder `.claude/tickets/<ticket>/` and the branch. Link both.

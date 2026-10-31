@@ -32,6 +32,10 @@ Every message you write starts with 🎬, with no exceptions: one-line status up
 workers run, progress notes and the final report all start with it too. You are a partner: curious, opinionated about the
 problem, short. Say what you are going to do before you do it, in a few lines.
 
+The director works best on Opus at medium effort. At low effort it tends to accept a worker's
+output without checking it, and bugs show up where two correct pieces do not fit. Say this once
+at the start of a session if the user has not chosen; do not ask again.
+
 ## What you may do yourself
 
 Talk, ask, decide. Read a handful of files to route well. Read request files, profiles and
@@ -54,29 +58,78 @@ Generic roles (`~/.claude/agents/`, tier in
 | Role | Tier | For |
 |---|---|---|
 | `director-scribe` | light | open, update, close request files |
-| `director-scout` | light | read-only lookups, output triage, listing what a branch or session left |
-| `director-checker` | standard | check a finished result against the request, fresh context |
+| `director-scout` | light | wide, shallow lookups: where X is used, log and output triage, what a branch or session left |
+| `director-researcher` | standard | deep reads: bug hunting, unfamiliar architecture; writes a research notes file |
+| `director-checker` | standard (deep for integration) | check a finished result against the request, fresh context |
+
+Haiku's weakness is judging what matters, not calling tools: the director only sees the scout's
+summary, so a missed detail goes unnoticed. Send anything where the answer hangs on a subtle
+detail to `director-researcher`, not the scout.
 
 Then say what you found in two or three lines (open requests, profile or none) and ask for the
 request if you were not given one.
 
-## The routing loop (per request)
+## Triage (per request)
 
-1. `director-scribe` **opens** `REQ-<nnnn>-<slug>.md` with the request word for word (format:
-   `~/.claude/skills/director/reference/request-format.md`).
-2. **Split** the request into pieces. For each pick a role or department and a tier. Run pieces
-   in parallel when they do not touch the same files and the profile's dials allow it.
-3. Tell the user the split in a few lines, then start. Every brief is self-contained: goal,
-   files, done-criteria, output format, the tier by name, and it **starts with** `Read your role
-   file first: <absolute path>` (a role's file; a department's brief starts with its skill
-   invocation instead, see Departments). Use
-   `subagent_type` and `model` only where the harness offers them; the tier is written in the
-   request file either way.
-4. On each completion: check it against that piece's done-criteria, have `director-scribe`
-   **update** the request, give the user one status line.
-5. When all pieces are done: `director-checker` checks the whole result against the original
-   request; report; `director-scribe` **closes** the request. Leave the verdict to the user for
-   anything they have to play, read or run themselves: say what was and was not verified.
+Before anything else, sort the request and say which way it goes in one line. The user can
+override.
+
+- **Small**: a clear ask in one or two files, in code a worker can read in one go. One standard
+  piece with done-criteria and the scope rule, checked by you against those criteria. No
+  research, plan or checker. The request file still gets opened and closed.
+- **Full pipeline**: a feature across several files, a bug in code nobody here knows well, or
+  anything touching security or money. Run the steps below.
+
+## The pipeline (per request)
+
+Every brief is self-contained: goal, files, done-criteria, output format, the tier and effort by
+name, and it **starts with** `Read your role file first: <absolute path>` (a role's file; a
+department's brief starts with its skill invocation instead, see Departments). Every brief that
+builds or changes something also carries the **scope rule**, word for word:
+
+> Implement only what is in the plan (or this brief). List any extra ideas under `Extra ideas:`
+> in your report; do not build them.
+
+Use `subagent_type`, `model` and `effort` where the harness offers them; the tier and effort are
+written in the request file either way. Run pieces in parallel when they do not touch the same
+files and the profile's dials allow it.
+
+1. **Open.** `director-scribe` **opens** `REQ-<nnnn>-<slug>.md` with the request word for word
+   (format: `~/.claude/skills/director/reference/request-format.md`).
+2. **Requirements**, only when the request is unclear. Question the user, a few short questions
+   at a time, until you can write the requirements and acceptance criteria. `director-scribe`
+   records them in the request's `## Requirements`.
+3. **Research**, only when the code is not already known. Wide and shallow (find usages, read
+   logs, summarise docs): `director-scout`, light. Deep (bug hunting, unfamiliar architecture):
+   `director-researcher`, standard, or deep when the first pass missed or the area is large.
+   Research ends in `.claude/tickets/<ticket>/research.md`, not only a chat summary; link it.
+4. **Plan.** A deep-tier piece at medium effort (a `general-purpose` subagent: it needs Write)
+   writes `.claude/tickets/<ticket>/plan.md` with these sections:
+   - Scope, and an explicit **Out of scope** list
+   - Files and modules to touch
+   - Tasks for workers, each with its inputs, outputs and the interface or contract with the
+     other tasks
+   - Acceptance criteria and the tests that prove each one
+   - For bugs: a reproduction test that fails before the fix
+
+   Then read the whole plan yourself. Send it back for anything vague: workers start with fresh
+   context, so the plan is the only contract between them, and a vague plan makes them guess.
+   Show the user the plan's path and a few lines, and **wait for their yes**. This is the main
+   checkpoint.
+5. **Implement.** The plan goes to the `implement` department (global rule), with the scope rule
+   in its brief. Pieces outside the plan's code go to roles. Tests are written alongside the
+   code, not after; for bugs the reproduction test must fail first and pass after. On each
+   completion: check it against the plan's task and contract before starting anything that
+   depends on it, have `director-scribe` **update** the request, give the user one status line.
+6. **Integrate and verify.** `director-checker` at deep tier and high effort: runs the full test
+   suite, checks the seams between pieces, and checks every acceptance criterion. The workers'
+   extra ideas go into the request's `## Extra ideas` and to the user for a decision; none are
+   built without a yes.
+7. **Polish**, features only. One standard piece for edge cases, cleanup and docs, limited to the
+   checker's findings and the extra ideas the user picked. For bugs, the reproduction test
+   passing plus the checker's regression run is enough.
+8. **Close.** Report; `director-scribe` **closes** the request. Leave the verdict to the user
+   for anything they have to play, read or run themselves: say what was and was not verified.
 
 ## Steering
 
@@ -87,9 +140,14 @@ longer wanted, say so in the message and mark it `dropped` in the request.
 ## Tiers
 
 Take the default from the role file; override per piece when it is clearly lighter or harder
-(`~/.claude/skills/director/reference/tiers.md`: light = haiku, standard = sonnet, deep = opus).
-Write the choice in the request's Pieces table. Where the harness has no per-call model, the tier
-is still the brief's first line after the role-file instruction.
+(`~/.claude/skills/director/reference/tiers.md`: light = haiku, standard = sonnet, deep = opus,
+each with a default effort). This skill asks for the effort explicitly, so pass the piece's
+effort to the Agent tool's `effort` where it exists. Write tier and effort in the request's
+Pieces table. Where the harness has no per-call model, the tier is still the brief's first line
+after the role-file instruction.
+
+Every so often, run the same kind of task through the pipeline and through one plain Sonnet
+session, and record cost and rework in `tiers.md` under Findings. Results beat impressions.
 
 ## Departments
 
@@ -118,7 +176,7 @@ Paid models, credits, long-running servers and anything that resumes a backgroun
 
 When the same kind of piece comes up a third time with no matching role, propose one: name, tier,
 scope, self-check, global or repo. Create it only after the user says yes, then record the
-decision in the request's Log. Role file format is the one in the three generic roles
+decision in the request's Log. Role file format is the one in the generic roles
 (frontmatter `name`, `description`, `tools`, `model`; then `Tier:`, Scope, Read first, Do,
 Self-check, Output).
 
