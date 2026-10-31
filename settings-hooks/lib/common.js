@@ -28,6 +28,7 @@ const DEFAULTS = {
     ports: [],   // e.g. [{ port: 5173, label: 'vite' }]
     portCacheSeconds: 10,
     showModel: true,
+    showEffort: true,  // reasoning effort level after the model name
     maxBranchLength: 42,
   },
 };

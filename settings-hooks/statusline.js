@@ -1,6 +1,6 @@
 'use strict';
-// Status line: repo · branch ↑ahead ↓behind · changed files · upstream warning · dev ports · model
-// Example: my-app  ABC-123-status-panel ↑1  3 changed  vite:5173 ●  Opus 5.5
+// Status line: repo · branch ↑ahead ↓behind · changed files · upstream warning · dev ports · model · effort
+// Example: my-app  ABC-123-status-panel ↑1  3 changed  vite:5173 ●  Opus 5.5 · high
 const fs = require('fs');
 const net = require('net');
 const path = require('path');
@@ -71,6 +71,8 @@ c.run(async () => {
   for (const p of await ports(cfg)) {
     parts.push(p.up ? `${p.label}:${p.port} ${A.green}●${A.reset}` : `${A.dim}${p.label}:${p.port} ○${A.reset}`);
   }
-  if (cfg.showModel && input.model && input.model.display_name) parts.push(`${A.dim}${input.model.display_name}${A.reset}`);
+  const model = cfg.showModel && input.model && input.model.display_name;
+  const effort = cfg.showEffort && input.effort && input.effort.level;
+  if (model || effort) parts.push(`${A.dim}${[model, effort].filter(Boolean).join(' · ')}${A.reset}`);
   await new Promise((r) => process.stdout.write(parts.join('  ') + '\n', r));
 });

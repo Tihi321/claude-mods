@@ -21,6 +21,7 @@
     "ports": [],
     "portCacheSeconds": 10,
     "showModel": true,
+    "showEffort": true,
     "maxBranchLength": 42
   }
 }

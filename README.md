@@ -61,7 +61,7 @@ GitHub access (ci-watch, and ship-bar's PR state) goes through `gh api` when `gh
 |---|---|---|---|
 | lint-changed | PreToolUse + PostToolUse `Edit\|Write`, Stop, SubagentStop | `lint-changed: 2 new error(s) in StatusPanel.jsx` | none |
 | git-guard | PostToolUse `Bash\|PowerShell` | `git-guard: app/ABC-123-x was tracking origin/master; upstream removed…` | none |
-| status line | statusLine | `my-app  ABC-123-status-panel ↑1  3 changed  vite:5173 ●  Opus 5.5` | none |
+| status line | statusLine | `my-app  ABC-123-status-panel ↑1  3 changed  vite:5173 ●  Opus 5.5 · high` | none |
 | eol-guard (hook) | PreToolUse + PostToolUse | off by default; the `eol-guard` plugin replaces it | none |
 
 - **lint-changed.** The first time Claude touches a JS/TS file in a session, ESLint records the errors already in it. After each edit, only *new* errors are reported to Claude. When Claude or a subagent finishes, every file it edited is re-linted, and the stop is blocked once if new errors remain. It uses the repo's own `node_modules/eslint` and config.
