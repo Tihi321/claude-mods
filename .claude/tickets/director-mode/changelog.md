@@ -82,5 +82,7 @@ Not run:
 
 ### Commit status
 
-Uncommitted on `director-mode`. The user's own edits in `README.md` and `settings-hooks/*` are in
-the same working tree and must stay out of any commit of this work.
+Committed on `director-mode` as `ae1ac6c` (2026-10-26); the workflow update (triage, plan
+checkpoint, scope rule, `director-researcher`) followed as `9efccec` (2026-10-31). Both were
+merged into `master` through PR #1 (`72656a4`). The user's status-line effort edits (README row
+and `settings-hooks/*`) were committed to `master` separately on 2026-10-31.

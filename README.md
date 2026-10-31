@@ -4,7 +4,7 @@ Claude Code mods, packaged so any machine can install them with one command. The
 
 - **Plugin mods** (`plugins/`). Real Claude Code mods (function-hook plugins) that add bands above the prompt, status-line entries and tool hooks. This folder is a plugin marketplace named `tihi-mods`.
 - **Settings-hook mods** (`settings-hooks/`). Classic hook scripts and a status line, wired into `~/.claude/settings.json`.
-- **Skill** (`skills/replay-ticket/`). The `/replay-ticket` skill.
+- **Skills and agents** (`skills/`, `agents/`). The `/replay-ticket`, `/director` and `/roadmap` skills, and the director's roles.
 
 ## Install
 
@@ -18,11 +18,28 @@ node install.js
 
 Then restart Claude Code (or run `/reload-plugins`), and run `/mod-doctor` to check that everything loaded.
 
+### Let Claude install it
+
+Or paste this into a Claude Code session and let Claude do it. It installs only the skills and the director's agents, and leaves your settings, hooks and plugins alone:
+
+```text
+Install the skills and agents from https://github.com/Tihi321/claude-mods.
+Clone it to a folder I can keep (ask me where if unsure; it is also the place
+to pull updates from later). Read install.js before running it, then run
+`node install.js --skills-only --dry-run`, show me what it would copy and
+whether it would overwrite any skill or agent I already have, and wait for my
+OK. Then run `node install.js --skills-only`, list the skills and agents now in
+~/.claude/skills and ~/.claude/agents, and tell me to start a new session to
+load them. To update later: `git pull` in the clone and run the same command.
+```
+
+For everything (plugins, settings hooks and the status line too), ask for `node install.js` instead of `--skills-only`; Claude should show you the `--dry-run` first, because that one backs up and changes `~/.claude/settings.json`.
+
 The installer:
 - adds this clone as the `tihi-mods` marketplace and installs every plugin in `plugins/` for your user;
 - copies `settings-hooks/` to `~/.claude/mods/` and the skill to `~/.claude/skills/replay-ticket/`;
 - backs up `~/.claude/settings.json`, then merges in the hooks and the status line, leaving your other settings alone.
-- copies every folder under `skills/` to `~/.claude/skills/` (this includes `/director`) and every file under `agents/` to `~/.claude/agents/` (the director's three roles).
+- copies every folder under `skills/` to `~/.claude/skills/` (this includes `/director`) and every file under `agents/` to `~/.claude/agents/` (the director's four roles).
 
 Running it again updates in place without creating duplicates. An existing status line is kept unless you pass `--force-statusline`; the old one is saved and comes back on `--uninstall`.
 
