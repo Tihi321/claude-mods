@@ -4,12 +4,15 @@
 //   ~/.claude/mods/                  settings-hooks/ plus config.json, built from the shipped config, then
 //                                    settings-hooks/config.local.json (machine values, git-ignored), then
 //                                    your existing ~/.claude/mods/config.json values, which win
-//   ~/.claude/skills/replay-ticket/  the /replay-ticket skill
+//   ~/.claude/skills/<name>/         every folder under skills/ (/replay-ticket, /director)
+//   ~/.claude/agents/<name>.md       every file under agents/ (the director's roles)
 //   ~/.claude/settings.json          hooks + statusLine merged in (backup written first)
 //   plugin mods                      this folder is added as the "tihi-mods" marketplace and every plugin
 //                                    in plugins/ is installed with `claude plugin install` (user scope)
 // Usage: node install.js [--uninstall] [--force-statusline] [--dry-run] [--home <dir>]
-//                        [--hooks-only | --plugins-only]
+//                        [--hooks-only | --plugins-only | --skills-only]
+//   --skills-only  only skills/ and agents/: no settings-hooks/, no settings.json change, no plugins.
+//                  Uninstall removes only the shipped skill folders and the agent files this repo ships.
 
 const fs = require('fs');
 const os = require('os');
@@ -25,7 +28,8 @@ const CLAUDE = path.join(HOME, '.claude');
 const SRC = __dirname;
 const MODS = path.join(CLAUDE, 'mods');
 const HOOK_SRC = path.join(SRC, 'settings-hooks');
-const SKILL = path.join(CLAUDE, 'skills', 'replay-ticket');
+const SKILLS = path.join(CLAUDE, 'skills');
+const AGENTS = path.join(CLAUDE, 'agents');
 const SETTINGS = path.join(CLAUDE, 'settings.json');
 const DRY = flag('--dry-run');
 const MARK = '/.claude/mods/';
@@ -54,6 +58,39 @@ function copyDir(from, to, skip = () => false) {
     if (e.isDirectory()) { if (!DRY) fs.mkdirSync(d, { recursive: true }); copyDir(s, d, skip); }
     else if (!DRY) fs.copyFileSync(s, d);
   }
+}
+
+// ---------- skills and agents ----------
+
+// What this repo ships: every folder under skills/, every .md file under agents/.
+const listDir = (d, want) => (fs.existsSync(d) ? fs.readdirSync(d, { withFileTypes: true }).filter(want).map((e) => e.name) : []);
+const shippedSkills = () => listDir(path.join(SRC, 'skills'), (e) => e.isDirectory());
+const shippedAgents = () => listDir(path.join(SRC, 'agents'), (e) => e.isFile() && e.name.endsWith('.md'));
+
+function installSkills() {
+  say(`Skills and agents into ${CLAUDE}`);
+  for (const n of shippedSkills()) {
+    if (DRY) say(`  [dry-run] copy skills/${n}/ -> ${path.join(SKILLS, n)}`);
+    else { fs.mkdirSync(path.join(SKILLS, n), { recursive: true }); copyDir(path.join(SRC, 'skills', n), path.join(SKILLS, n)); }
+    if (!DRY) say(`  skills/${n}: copied`);
+  }
+  for (const n of shippedAgents()) {
+    if (DRY) say(`  [dry-run] copy agents/${n} -> ${path.join(AGENTS, n)}`);
+    else { fs.mkdirSync(AGENTS, { recursive: true }); fs.copyFileSync(path.join(SRC, 'agents', n), path.join(AGENTS, n)); }
+    if (!DRY) say(`  agents/${n}: copied`);
+  }
+}
+
+// Removes only what this repo ships; other files in ~/.claude/skills and ~/.claude/agents are never touched.
+function uninstallSkills() {
+  say(`Removing skills and agents from ${CLAUDE}`);
+  const rm = (p, label) => {
+    const there = fs.existsSync(p);
+    if (DRY) say(`  [dry-run] remove ${p}${there ? '' : ' (not there)'}`);
+    else if (there) { fs.rmSync(p, { recursive: true, force: true }); say(`  ${label}: removed`); }
+  };
+  for (const n of shippedSkills()) rm(path.join(SKILLS, n), `skills/${n}`);
+  for (const n of shippedAgents()) rm(path.join(AGENTS, n), `agents/${n}`);
 }
 
 function deepMerge(base, over) {
@@ -118,9 +155,6 @@ function install() {
   }
   if (!DRY) fs.writeFileSync(userCfgPath, JSON.stringify(cfg, null, 2) + '\n');
   say(`  mods/: ${userCfg ? 'updated (your config.json values kept)' : 'copied'}${localCfg ? ', config.local.json applied' : ''}`);
-  if (!DRY) fs.mkdirSync(SKILL, { recursive: true });
-  copyDir(path.join(SRC, 'skills', 'replay-ticket'), SKILL);
-  say('  skills/replay-ticket: copied');
 
   const s = stripOurHooks(readSettings());
   s.hooks = s.hooks || {};
@@ -201,16 +235,22 @@ function uninstallPlugins() {
 }
 
 function main() {
-  const hooks = !flag('--plugins-only');
-  const plugins = !flag('--hooks-only');
+  const only = ['--hooks-only', '--plugins-only', '--skills-only'].filter(flag);
+  if (only.length > 1) { console.error(`${only.join(' and ')} cannot be combined.`); process.exit(1); }
+  const hooks = !flag('--plugins-only') && !flag('--skills-only');
+  const plugins = !flag('--hooks-only') && !flag('--skills-only');
+  const skills = !flag('--plugins-only');
   if (flag('--uninstall')) {
     if (plugins) uninstallPlugins();
     if (hooks) uninstall();
+    if (skills) uninstallSkills();
     say('\nRestart Claude Code.');
     return;
   }
   if (hooks) install();
+  if (skills) installSkills();
   const ok = plugins ? installPlugins() : true;
+  if (flag('--skills-only')) { say('\nDone. Restart Claude Code (or start a new session) to load the skills and agents.'); return; }
   say(`\n${ok ? 'Done' : 'Done, with problems above'}. Restart Claude Code (or run /reload-plugins), then run /mod-doctor to check everything loaded.`);
 }
 
@@ -224,9 +264,8 @@ function uninstall() {
   writeSettings(s);
   if (!DRY) {
     fs.rmSync(MODS, { recursive: true, force: true });
-    fs.rmSync(SKILL, { recursive: true, force: true });
   }
-  say('  hooks, statusLine, mods/ and skills/replay-ticket removed.');
+  say('  hooks, statusLine and mods/ removed.');
 }
 
 main();

@@ -22,10 +22,13 @@ The installer:
 - adds this clone as the `tihi-mods` marketplace and installs every plugin in `plugins/` for your user;
 - copies `settings-hooks/` to `~/.claude/mods/` and the skill to `~/.claude/skills/replay-ticket/`;
 - backs up `~/.claude/settings.json`, then merges in the hooks and the status line, leaving your other settings alone.
+- copies every folder under `skills/` to `~/.claude/skills/` (this includes `/director`) and every file under `agents/` to `~/.claude/agents/` (the director's three roles).
 
 Running it again updates in place without creating duplicates. An existing status line is kept unless you pass `--force-statusline`; the old one is saved and comes back on `--uninstall`.
 
 Options: `--dry-run`, `--uninstall` (removes everything), `--hooks-only`, `--plugins-only`, `--force-statusline`.
+
+`--skills-only` copies just the skills and agents; with `--uninstall` it removes just those.
 
 The marketplace is read in place from the clone, so keep the clone where it is. After an edit, `/reload-plugins` picks it up; no reinstall is needed.
 
@@ -72,6 +75,17 @@ The shipped `settings-hooks/config.json` is generic: no dev ports. Put machine-s
 ## /replay-ticket
 
 `/replay-ticket <repo>/.claude/tickets/<name> <target repos…>` carries a change made in one repo over to others. It bundles the source branch (commits, the diff including uncommitted work, and the ticket's notes) into `replay-bundle.md`, then in each target creates the same branch with `--no-track` and writes a `plan.md`. One `implementer` runs per repo in parallel, and it finishes with a status table and a `changelog.md` per repo. Target names resolve through a `repos.yaml` in a sibling skill folder if one exists; otherwise give paths. Nothing is committed.
+
+## /director
+
+`/director` turns the current session into a director for one request or a whole working session. It stays opt-in: the skill is loaded only in the session that runs it, and it is never written into a `CLAUDE.md`, so subagents never act as directors. Every director message starts with 🎬. The director understands a request, splits it into pieces, and hands each piece to a role (a subagent) or a department (a skill with its own loop, such as `/implement`, `/factory` or `/replay-ticket`), picks a model tier per piece (light = haiku, standard = sonnet, deep = opus), keeps one request file per request, reports each completion in a line, and steers running work with `SendMessage` when you change your mind. It does little of the work itself, and without a profile it never spends money or starts a service without asking.
+
+- `/director` starts director mode; `/director status`, `/director roles` and `/director resume` list open requests, review every role and rule, and pick up open requests from their files.
+- Each request is triaged first. A small change is one Sonnet piece. Anything bigger runs the pipeline: requirements (only if unclear), research (Haiku for wide and shallow, Sonnet or Opus for deep), a plan file with scope, out of scope, task contracts, acceptance criteria and tests that you approve, implementation with tests alongside, an Opus integrate-and-verify pass, and polish for features. Every building brief carries a scope rule: build only what is in the plan, list extra ideas for you to decide. Run the director session itself on Opus at medium effort.
+- Four roles ship in `agents/`: `director-scribe` (light; writes the request files), `director-scout` (light; wide, shallow lookups and output triage), `director-researcher` (standard; deep research into a notes file, never changes code) and `director-checker` (standard, deep for integration; checks a finished result against the request, never fixes).
+- Per repo, the director writes `.claude/director/requests/REQ-<nnnn>-<slug>.md` through the scribe, and never commits them; the first time, it asks whether to add `.claude/director/` to `.gitignore`. An optional `.claude/director.md` profile names the repo's own departments, roles, dials (limits and ask-before rules), state locations and checks. The formats are in `skills/director/reference/`.
+
+To install only the skills and agents (no settings hooks, no `settings.json` change, no plugins), run `node install.js --skills-only`. Add `--dry-run` to see what it would copy, or `--uninstall` to remove only the skills and agent files this repo ships.
 
 ## Develop
 
