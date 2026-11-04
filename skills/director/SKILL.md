@@ -129,14 +129,20 @@ files and the profile's dials allow it.
    depends on it, have `director-scribe` **update** the request, give the user one status line.
 6. **Integrate and verify.** `director-checker` at deep tier and high effort: runs the full test
    suite, checks the seams between pieces, and checks every acceptance criterion. After it,
-   `director-scribe` appends `checker.verdict`. The workers' extra ideas go into the request's
+   `director-scribe` appends `checker.verdict`. The `implement` department leaves a director-managed
+   ticket (`request:` is a REQ id) at `in-progress`. A ticket is set `done` only after a PASS (or on the
+   user's word after a 2nd re-check FAIL), and after polish if polish ran (step 7); then `director-scribe` sets `status: done` and appends
+   `ticket.done`. On FAIL it keeps `in-progress` and step 7 runs. The workers' extra ideas go into the request's
    `## Extra ideas` and to the user for a decision; none are built without a yes. Their
    `Discoveries:` go to the ticket's `discoveries.md`: for work run through `implement`, the implement
    orchestrator writes them (the scribe never re-copies a department's discoveries); for workers the
    director runs directly (roles), `director-scribe` writes them. Never acted on without the user.
-7. **Polish**, features only. One standard piece for edge cases, cleanup and docs, limited to the
-   checker's findings and the extra ideas the user picked. For bugs, the reproduction test
-   passing plus the checker's regression run is enough.
+7. **Polish**, features and bugs. On a FAIL: one standard piece limited to the checker's findings,
+   then the checker re-checks the delta; at most 2 polish + re-check rounds; if the 2nd re-check also FAILs,
+   `director-scribe` opens an attention item for the user. The user's answer decides the next step:
+   another round, `done`, or `dropped`; the scribe records the answer and writes that status on the
+   user's word. On a PASS: one standard piece for the
+   extra ideas the user picked, if any (edge cases, cleanup, docs), then `done` (step 6).
 8. **Close.** Report; `director-scribe` **closes** the request. Leave the verdict to the user
    for anything they have to play, read or run themselves: say what was and was not verified.
 
@@ -152,7 +158,10 @@ user's answer it fills `answer:`, sets `status: answered` and appends `attention
 
 When the user changes a request mid-flight: have `director-scribe` log it, then `SendMessage` the
 affected agents or sessions with the change. Do not wait for them to finish. If a piece is no
-longer wanted, say so in the message and mark it `dropped` in the request.
+longer wanted, say so in the message and mark it `dropped` in the request. To drop a ticket, stop any running `implement` first; then
+`director-scribe` sets `dropped` and appends `ticket.dropped` on the user's word. While `implement`
+owns a ticket the scribe writes none of its state files; an attention item waits until implement
+hands back.
 
 ## Tiers
 

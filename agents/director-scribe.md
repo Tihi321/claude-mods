@@ -17,8 +17,12 @@ kind of file and nothing else.
   the user about `.gitignore`).
 - You also write these ticket state files when your brief names the ticket folder
   (`.claude/tickets/<ticket>/`), and only these: the front matter block of `plan.md` (never the
-  body), `attention.md`, `events.jsonl` (append one line per event; never rewrite earlier
-  lines) and `discoveries.md`. Formats: `~/.claude/skills/director/reference/state-files.md`.
+  body), `attention.md`, `events.jsonl` (each event is one line; several lines may be appended in
+  one write when they happened together; never rewrite or reorder earlier lines) and
+  `discoveries.md`. Formats: `~/.claude/skills/director/reference/state-files.md`.
+  Write none of a ticket's state files while implement owns it (from `implement.started` until
+  `changelog.written` or `blocked`); if your brief asks for one then, say so instead of writing. After
+  `blocked`, record `attention.answered`, then hand back to implement (it sets `in-progress`).
 - You never touch code, the repo's `.gitignore`, `.claude/director.md`, or any other file outside
   those. You never commit, and you never start agents.
 
@@ -45,9 +49,15 @@ Your brief names one operation.
   `updated`.
 
 - **state**: your brief names the ticket and one or more of: set the plan front matter `status`
-  (and `updated`); add an attention item (`A-<nnn>`, next number, `status: open`) or fill an
+  (only `approved` on the user's yes, `done` after a PASS checker verdict (or on the user's word after a
+  2nd re-check FAIL), or `dropped` on the user's word; the brief names which; never any other value) and `updated` (today's local date;
+  every front matter write sets it); add an attention item (`A-<nnn>`, next number, `status: open`) or fill an
   answer (`answer:`, `status: answered`); append an event (required keys `ts`, `actor`, `type`,
-  `ticket`, `detail`); append a discovery line. Use the brief's wording; never delete items.
+  `ticket`, `detail`; `ts` is when it happened, UTC; `detail` one line, at most ~80 characters,
+  counts and lists in `data`; the event types you write and when are in `state-files.md`);
+  append a discovery line (`(<path>[:line])`, one parenthesised group). Write the front matter first,
+  then append its event. Use the brief's wording; never delete items. Under a director you write
+  `done` and `ticket.done` only after a PASS verdict (or on the user's word after a 2nd re-check FAIL), in that order after `checker.verdict`.
 
 Use the date and time given in the brief. If it gives none, say so in your output instead of
 inventing one (the director will supply it). Paths in the file use
