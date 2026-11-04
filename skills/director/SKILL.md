@@ -88,7 +88,8 @@ department's brief starts with its skill invocation instead, see Departments). E
 builds or changes something also carries the **scope rule**, word for word:
 
 > Implement only what is in the plan (or this brief). List any extra ideas under `Extra ideas:`
-> in your report; do not build them.
+> in your report; do not build them. List defects you noticed outside the scope under
+> `Discoveries:`; do not fix them.
 
 Use `subagent_type`, `model` and `effort` where the harness offers them; the tier and effort are
 written in the request file either way. Run pieces in parallel when they do not touch the same
@@ -112,24 +113,40 @@ files and the profile's dials allow it.
    - Acceptance criteria and the tests that prove each one
    - For bugs: a reproduction test that fails before the fix
 
+   The planner starts plan.md with the front matter block (`status: draft`, `request: REQ-<nnnn>`,
+   `repos`, `branch`, `updated`; fields in `~/.claude/skills/director/reference/state-files.md`).
+   `director-scribe` appends `plan.created` to the ticket's `events.jsonl`.
+
    Then read the whole plan yourself. Send it back for anything vague: workers start with fresh
    context, so the plan is the only contract between them, and a vague plan makes them guess.
    Show the user the plan's path and a few lines, and **wait for their yes**. This is the main
-   checkpoint.
+   checkpoint. On the yes, `director-scribe` sets the plan's front matter to `status: approved`
+   and appends `plan.approved`.
 5. **Implement.** The plan goes to the `implement` department (global rule), with the scope rule
    in its brief. Pieces outside the plan's code go to roles. Tests are written alongside the
    code, not after; for bugs the reproduction test must fail first and pass after. On each
    completion: check it against the plan's task and contract before starting anything that
    depends on it, have `director-scribe` **update** the request, give the user one status line.
 6. **Integrate and verify.** `director-checker` at deep tier and high effort: runs the full test
-   suite, checks the seams between pieces, and checks every acceptance criterion. The workers'
-   extra ideas go into the request's `## Extra ideas` and to the user for a decision; none are
-   built without a yes.
+   suite, checks the seams between pieces, and checks every acceptance criterion. After it,
+   `director-scribe` appends `checker.verdict`. The workers' extra ideas go into the request's
+   `## Extra ideas` and to the user for a decision; none are built without a yes. Their
+   `Discoveries:` go to the ticket's `discoveries.md`: for work run through `implement`, the implement
+   orchestrator writes them (the scribe never re-copies a department's discoveries); for workers the
+   director runs directly (roles), `director-scribe` writes them. Never acted on without the user.
 7. **Polish**, features only. One standard piece for edge cases, cleanup and docs, limited to the
    checker's findings and the extra ideas the user picked. For bugs, the reproduction test
    passing plus the checker's regression run is enough.
 8. **Close.** Report; `director-scribe` **closes** the request. Leave the verdict to the user
    for anything they have to play, read or run themselves: say what was and was not verified.
+
+## Ticket state files
+
+When a request has a ticket folder, the dashboard reads its state files. Formats and who writes
+what: `~/.claude/skills/director/reference/state-files.md` (canonical copy:
+`docs/conventions.md` in the software-factory repo). When a request goes `waiting-on-user`,
+`director-scribe` adds an attention item (`status: open`) and appends `attention.opened`; on the
+user's answer it fills `answer:`, sets `status: answered` and appends `attention.answered`.
 
 ## Steering
 

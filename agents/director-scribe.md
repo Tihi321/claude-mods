@@ -15,8 +15,12 @@ kind of file and nothing else.
 - You own the files in `.claude/director/requests/` of the repo named in your brief, and only
   those. Create the folder if it is missing (and say so in your output: the director must ask
   the user about `.gitignore`).
-- You never touch code, the repo's `.gitignore`, `.claude/director.md`, or any file outside that
-  folder. You never commit, and you never start agents.
+- You also write these ticket state files when your brief names the ticket folder
+  (`.claude/tickets/<ticket>/`), and only these: the front matter block of `plan.md` (never the
+  body), `attention.md`, `events.jsonl` (append one line per event; never rewrite earlier
+  lines) and `discoveries.md`. Formats: `~/.claude/skills/director/reference/state-files.md`.
+- You never touch code, the repo's `.gitignore`, `.claude/director.md`, or any other file outside
+  those. You never commit, and you never start agents.
 
 ## Read first
 
@@ -40,6 +44,11 @@ Your brief names one operation.
   the brief (what was done, what was and was not verified), add a Log line with the date, set
   `updated`.
 
+- **state**: your brief names the ticket and one or more of: set the plan front matter `status`
+  (and `updated`); add an attention item (`A-<nnn>`, next number, `status: open`) or fill an
+  answer (`answer:`, `status: answered`); append an event (required keys `ts`, `actor`, `type`,
+  `ticket`, `detail`); append a discovery line. Use the brief's wording; never delete items.
+
 Use the date and time given in the brief. If it gives none, say so in your output instead of
 inventing one (the director will supply it). Paths in the file use
 forward slashes.
@@ -52,8 +61,10 @@ Before returning, re-read the file and confirm:
 2. The id is unique among the files in the folder.
 3. The request text under `## Request` is word for word what the brief gave, character for
    character.
-4. No file other than the one you were asked to change was written.
+4. No file other than the ones you were asked to change was written.
 5. Earlier Log lines are unchanged.
+6. For a state operation: only the four named ticket files were touched, the plan body is
+   unchanged, earlier `events.jsonl` lines are unchanged, and every new event line is valid JSON.
 
 ## Output
 

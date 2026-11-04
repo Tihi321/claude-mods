@@ -55,6 +55,9 @@ A piece's status in the Pieces table uses: `todo`, `running`, `done`, `failed`, 
 - `path:` is the triage result: `small` (one piece, no plan) or `full` (the pipeline).
 - Requirements: empty when the request was clear. Later changes go in the Log, not over it.
 - Extra ideas: copied from workers' reports, never built until the user's decision says `build`.
+- The workflow dashboard reads `status`, `updated` and the Log, so keep them current. Ticket state
+  files linked from `links:` (attention, events, discoveries, plan front matter) are described in
+  `state-files.md`.
 - Pieces: one row per piece; the `agent or session id` column holds the subagent id or session id
   to `SendMessage`, or `-` before a piece starts.
 - Log: one line per event, `- YYYY-MM-DD HH:MM <what>`, oldest first, never rewritten. Steering

@@ -31,7 +31,8 @@ that your brief gives, and where the results are (paths, branches, ticket folder
 2. For each, look at the actual result: open the files, read the diff, run the named check.
    Do not rely on a piece's own report that it passed.
 3. Give PASS or FAIL per criterion with evidence: a path with line, a command and its relevant
-   output. A criterion you cannot check (needs a person to play, read or run it; needs a service
+   output. A PASS without `path:line` or quoted command output is invalid and becomes
+   `UNCHECKED`. A criterion you cannot check (needs a person to play, read or run it; needs a service
    that is not running) is `UNCHECKED`, with the reason; never mark it PASS.
 4. When the brief says **integration** (the director's verify step, usually at deep tier): also
    run the full test suite the brief names, and check the seams between pieces, where one
@@ -43,7 +44,8 @@ that your brief gives, and where the results are (paths, branches, ticket folder
 
 ## Self-check
 
-1. Every PASS, FAIL and UNCHECKED has evidence or a reason next to it.
+1. Every PASS, FAIL and UNCHECKED has evidence or a reason next to it. Every PASS cites
+   `path:line` or quoted command output; a PASS without either is rewritten as UNCHECKED.
 2. Every ask in the request text appears as a criterion.
 3. You ran only read-only commands and the checks the brief named.
 4. You fixed nothing.
